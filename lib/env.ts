@@ -22,3 +22,14 @@ export function getCompanyName(): string {
 export function getPrimaryDomainHint(): string | undefined {
   return getAllowedEmailDomains()[0];
 }
+
+/** Prevent a copied local .env from sending Google OAuth back to localhost on Vercel. */
+export function applyVercelAuthUrl(): void {
+  if (!process.env.VERCEL) return;
+  const host = (process.env.VERCEL_URL || "").replace(/^https?:\/\//, "");
+  if (!host) return;
+  const current = process.env.AUTH_URL || "";
+  if (!current || /localhost|127\.0\.0\.1/i.test(current)) {
+    process.env.AUTH_URL = `https://${host}`;
+  }
+}

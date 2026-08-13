@@ -1,6 +1,8 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
-import { getPrimaryDomainHint, isAllowedEmail } from "@/lib/env";
+import { applyVercelAuthUrl, getPrimaryDomainHint, isAllowedEmail } from "@/lib/env";
+
+applyVercelAuthUrl();
 
 const googleClientId = process.env.AUTH_GOOGLE_ID;
 const googleClientSecret = process.env.AUTH_GOOGLE_SECRET;
