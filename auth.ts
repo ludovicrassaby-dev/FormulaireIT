@@ -64,6 +64,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.accessToken = account.access_token;
         token.refreshToken = account.refresh_token ?? token.refreshToken;
         token.expiresAt = account.expires_at;
+        token.googleScope = account.scope;
         delete token.error;
         return token;
       }
@@ -87,6 +88,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.error = "RefreshTokenError";
       }
       return token;
+    },
+    async session({ session, token }) {
+      session.accessToken = token.accessToken;
+      session.refreshToken = token.refreshToken;
+      session.expiresAt = token.expiresAt;
+      session.googleScope = token.googleScope;
+      session.error = token.error;
+      return session;
     },
     authorized({ auth: session, request }) {
       const isOnForm = request.nextUrl.pathname.startsWith("/formulaire");

@@ -1,14 +1,14 @@
 import { google } from "googleapis";
-import { getToken } from "next-auth/jwt";
-import { headers } from "next/headers";
+import { auth } from "@/auth";
 import { HttpError } from "@/lib/http";
+import { sessionHasGoogleDriveAccess } from "@/lib/google-session";
 
 type ServiceAccount = {
   client_email: string;
   private_key: string;
 };
 
-const DRIVE_AND_SHEETS_SCOPES = [
+export const DRIVE_AND_SHEETS_SCOPES = [
   "https://www.googleapis.com/auth/drive",
   "https://www.googleapis.com/auth/spreadsheets",
 ] as const;
@@ -33,28 +33,24 @@ function readServiceAccount(): ServiceAccount | null {
 }
 
 async function getSessionGoogleAuth() {
-  const token = await getToken({
-    req: { headers: await headers() },
-    secret: process.env.AUTH_SECRET,
-  });
-  const accessToken = token?.accessToken;
-  if (typeof accessToken !== "string" || !accessToken) {
+  const session = await auth();
+  if (!sessionHasGoogleDriveAccess(session)) {
     throw new HttpError(
       "Autorisez Drive et Sheets : déconnectez-vous, reconnectez-vous, puis acceptez l’accès demandé par Google.",
       401,
     );
   }
 
-  const auth = new google.auth.OAuth2(
+  const oauth = new google.auth.OAuth2(
     process.env.AUTH_GOOGLE_ID,
     process.env.AUTH_GOOGLE_SECRET,
   );
-  auth.setCredentials({
-    access_token: accessToken,
-    refresh_token: typeof token.refreshToken === "string" ? token.refreshToken : undefined,
-    expiry_date: typeof token.expiresAt === "number" ? token.expiresAt * 1000 : undefined,
+  oauth.setCredentials({
+    access_token: session?.accessToken,
+    refresh_token: session?.refreshToken,
+    expiry_date: session?.expiresAt ? session.expiresAt * 1000 : undefined,
   });
-  return auth;
+  return oauth;
 }
 
 export async function getGoogleAuth() {
