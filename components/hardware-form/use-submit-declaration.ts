@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { submitDeclaration } from "@/lib/declaration-api";
+import { clearDraft } from "@/components/hardware-form/draft-client";
 import {
   collectAttachments,
   toSubmitPayload,
@@ -21,7 +22,8 @@ export function useSubmitDeclaration() {
         attachments: collectAttachments(values),
         onProgress: setProgressMessage,
       }),
-    onSuccess: (result) => {
+    onSuccess: async (result) => {
+      await clearDraft();
       const params = new URLSearchParams({
         region: result.regionName,
         agency: result.agencyName,

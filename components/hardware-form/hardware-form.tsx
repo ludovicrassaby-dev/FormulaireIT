@@ -1,9 +1,13 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { Plus, UserRound } from "lucide-react";
-import type { PublicRegion } from "@/lib/agencies";
-import { submitPayloadSchema } from "@/lib/declaration-schema";
+import { firstFormError } from "@/components/form/field-error";
 import { ComputerCard } from "@/components/hardware-form/computer-card";
+import {
+  fetchDraft,
+  saveDraft,
+} from "@/components/hardware-form/draft-client";
 import {
   createEmptyComputer,
   defaultDeclarationValues,
@@ -11,6 +15,8 @@ import {
 } from "@/components/hardware-form/declaration-values";
 import { useSubmitDeclaration } from "@/components/hardware-form/use-submit-declaration";
 import { useAppForm } from "@/components/form/use-app-form";
+import type { PublicRegion } from "@/lib/agencies";
+import { submitPayloadSchema } from "@/lib/declaration-schema";
 
 export function HardwareForm(props: {
   regions: PublicRegion[];
@@ -18,9 +24,24 @@ export function HardwareForm(props: {
   userEmail: string;
 }) {
   const { mutation, progressMessage } = useSubmitDeclaration();
+  const canSaveRef = useRef(false);
+  const [draftStatus, setDraftStatus] = useState<"idle" | "restored" | "saving" | "saved">(
+    "idle",
+  );
 
   const form = useAppForm({
     defaultValues: defaultDeclarationValues,
+    canSubmitWhenInvalid: true,
+    listeners: {
+      onChangeDebounceMs: 800,
+      onChange: ({ formApi }) => {
+        if (!canSaveRef.current) return;
+        setDraftStatus("saving");
+        void saveDraft(formApi.state.values).then((ok) => {
+          setDraftStatus(ok ? "saved" : "idle");
+        });
+      },
+    },
     validators: {
       onSubmit: ({ value }) => {
         const parsed = submitPayloadSchema.safeParse(toSubmitPayload(value));
@@ -33,23 +54,47 @@ export function HardwareForm(props: {
     },
   });
 
+  useEffect(() => {
+    let cancelled = false;
+    void fetchDraft().then((draft) => {
+      if (cancelled) return;
+      if (draft) {
+        form.reset(draft);
+        setDraftStatus("restored");
+      }
+      canSaveRef.current = true;
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [form]);
+
   return (
     <form
       className="mt-8 space-y-6"
       onSubmit={(event) => {
         event.preventDefault();
         event.stopPropagation();
-        void form.handleSubmit();
+        void form.handleSubmit().catch(() => undefined);
       }}
     >
       <section className="rounded-[24px] border border-line bg-card p-5">
         <div className="flex items-start gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-bg-deep text-forest">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10 text-accent">
             <UserRound className="h-5 w-5" />
           </span>
           <div>
             <p className="font-medium">{props.userName}</p>
             <p className="text-sm text-muted">{props.userEmail}</p>
+            {draftStatus === "restored" ? (
+              <p className="mt-1 text-xs text-forest">Saisie précédente restaurée.</p>
+            ) : null}
+            {draftStatus === "saving" ? (
+              <p className="mt-1 text-xs text-muted">Enregistrement du brouillon…</p>
+            ) : null}
+            {draftStatus === "saved" ? (
+              <p className="mt-1 text-xs text-forest">Brouillon enregistré. Vous pouvez quitter et reprendre plus tard.</p>
+            ) : null}
           </div>
         </div>
       </section>
@@ -150,18 +195,22 @@ export function HardwareForm(props: {
         )}
       </form.AppField>
 
-      <form.Subscribe selector={(state) => state.errorMap.onSubmit}>
-        {(submitError) =>
-          submitError ? (
-            <p className="rounded-2xl border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-accent-dark">
-              {String(submitError)}
+      <form.Subscribe selector={(state) => state.errors}>
+        {(errors) => {
+          const message = firstFormError(errors);
+          return message ? (
+            <p
+              id="form-submit-error"
+              className="rounded-2xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger"
+            >
+              {message}
             </p>
-          ) : null
-        }
+          ) : null;
+        }}
       </form.Subscribe>
 
       {mutation.isError ? (
-        <p className="rounded-2xl border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-accent-dark">
+        <p className="rounded-2xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">
           {mutation.error.message}
         </p>
       ) : null}

@@ -16,9 +16,10 @@ export default async function FormulairePage() {
         </p>
         <h1 className="mt-2 font-serif text-4xl tracking-tight">Identifier le matériel inutilisé</h1>
         <p className="mt-3 max-w-2xl text-muted">
-          Choisissez d&apos;abord la région, puis l&apos;agence. Pour chaque poste :
-          nom Windows (Ce PC → Propriétés), n° Koesio s&apos;il existe, référence
-          SOS Réseau le cas échéant, et n° de série (saisi ou photographié).
+          Choisissez la région puis l&apos;agence. Pour chaque poste, remplissez
+          les zones : nom Windows, Koesio, SOS Réseau, n° de série, et l&apos;état
+          (aspect + fonctionnement). Les réponses sont enregistrées dans Drive et
+          dans une Google Sheet.
         </p>
         <HardwareForm
           regions={getPublicCatalog()}

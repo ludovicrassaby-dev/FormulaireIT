@@ -1,4 +1,11 @@
 services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+
   app:
     build:
       context: .
@@ -15,4 +22,10 @@ services:
       AUTH_TRUST_HOST: "true"
       AUTH_URL: ${AUTH_URL:-http://localhost:3000}
       AUTH_SECRET: ${AUTH_SECRET:?AUTH_SECRET manquant dans le fichier .env}
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - redis
     restart: unless-stopped
+
+volumes:
+  redis-data:

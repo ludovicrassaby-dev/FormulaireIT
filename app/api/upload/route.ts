@@ -2,6 +2,7 @@ import { uploadBuffer } from "@/lib/drive";
 import {
   isAllowedMimeType,
   MAX_FILE_SIZE_BYTES,
+  MAX_FILE_SIZE_MB,
 } from "@/lib/declaration-schema";
 import { extensionFor } from "@/lib/file-extension";
 import { HttpError, jsonError } from "@/lib/http";
@@ -20,7 +21,7 @@ function readUpload(formData: FormData): { token: string; label: string; file: F
     throw new HttpError("Format non accepté. Photos (JPG, PNG, WEBP, HEIC) ou PDF uniquement.", 400);
   }
   if (file.size > MAX_FILE_SIZE_BYTES) {
-    throw new HttpError("Fichier trop volumineux (4 Mo maximum par pièce).", 400);
+    throw new HttpError(`Fichier trop volumineux (${MAX_FILE_SIZE_MB} Mo maximum par pièce).`, 400);
   }
   return { token, label, file };
 }

@@ -6,12 +6,13 @@ import { useFieldContext } from "@/components/form/form-context";
 import {
   MAX_ATTACHMENTS_PER_COMPUTER,
   MAX_FILE_SIZE_BYTES,
+  MAX_FILE_SIZE_MB,
 } from "@/lib/declaration-schema";
 
 function rejectOversizedFile(files: File[]): string | undefined {
   const oversized = files.find((file) => file.size > MAX_FILE_SIZE_BYTES);
   if (!oversized) return undefined;
-  return `« ${oversized.name} » dépasse 4 Mo. Compressez la photo ou envoyez-en une autre.`;
+  return `« ${oversized.name} » dépasse ${MAX_FILE_SIZE_MB} Mo. Compressez la photo ou envoyez-en une autre.`;
 }
 
 export function AttachmentsField(props: {
@@ -38,8 +39,10 @@ export function AttachmentsField(props: {
             const oversizedMessage = rejectOversizedFile(selected);
             if (oversizedMessage) {
               field.setErrorMap({ onChange: oversizedMessage });
+              event.target.value = "";
               return;
             }
+            field.setErrorMap({ onChange: undefined });
             field.handleChange([...files, ...selected].slice(0, maxFiles));
             event.target.value = "";
           }}
@@ -55,7 +58,7 @@ export function AttachmentsField(props: {
                 <span className="truncate">{file.name}</span>
                 <button
                   type="button"
-                  className="text-accent"
+                  className="text-danger"
                   onClick={() => field.handleChange(files.filter((_, fileIndex) => fileIndex !== index))}
                 >
                   Retirer

@@ -1,68 +1,77 @@
 import { Readable } from "stream";
 import { google, type drive_v3 } from "googleapis";
 import { isPlaceholderFolderId, type Agency, type Region } from "@/lib/agencies";
+import { findFolderByLabel, type NamedFolder } from "@/lib/drive-folder-match";
+import { getGoogleAuth } from "@/lib/google-auth";
+import { getDriveRootFolderId } from "@/lib/google-targets";
 
-type ServiceAccount = {
-  client_email: string;
-  private_key: string;
-};
-
-function getCredentials(): ServiceAccount {
-  const rawJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
-  if (rawJson) {
-    const parsed = JSON.parse(rawJson) as ServiceAccount;
-    if (!parsed.client_email || !parsed.private_key) {
-      throw new Error("GOOGLE_SERVICE_ACCOUNT_JSON incomplet.");
-    }
-    return {
-      client_email: parsed.client_email,
-      private_key: parsed.private_key.replace(/\\n/g, "\n"),
-    };
-  }
-
-  const clientEmail = process.env.GOOGLE_CLIENT_EMAIL;
-  const privateKey = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n");
-  if (!clientEmail || !privateKey) {
-    throw new Error(
-      "Compte de service Google manquant (GOOGLE_SERVICE_ACCOUNT_JSON ou GOOGLE_CLIENT_EMAIL + GOOGLE_PRIVATE_KEY).",
-    );
-  }
-
-  return { client_email: clientEmail, private_key: privateKey };
-}
-
-export function getDrive(): drive_v3.Drive {
-  const credentials = getCredentials();
-  const auth = new google.auth.JWT({
-    email: credentials.client_email,
-    key: credentials.private_key,
-    scopes: ["https://www.googleapis.com/auth/drive"],
-  });
-  return google.drive({ version: "v3", auth });
+export async function getDrive(): Promise<drive_v3.Drive> {
+  return google.drive({ version: "v3", auth: await getGoogleAuth() });
 }
 
 const driveOptions = {
   supportsAllDrives: true,
+  includeItemsFromAllDrives: true,
 } as const;
 
-function sanitizeName(value: string): string {
+function sanitizeFileName(value: string): string {
   return value.replace(/[\\/:*?"<>|]/g, "-").replace(/\s+/g, " ").trim();
 }
 
-async function findChildFolder(
+async function listChildFolders(
   drive: drive_v3.Drive,
   parentId: string,
-  name: string,
-): Promise<string | undefined> {
-  const escaped = name.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
-  const response = await drive.files.list({
-    ...driveOptions,
-    includeItemsFromAllDrives: true,
-    q: `'${parentId}' in parents and name = '${escaped}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
-    fields: "files(id, name)",
-    pageSize: 1,
-  });
-  return response.data.files?.[0]?.id ?? undefined;
+): Promise<NamedFolder[]> {
+  const folders: NamedFolder[] = [];
+  let pageToken: string | undefined;
+
+  do {
+    const response = await drive.files.list({
+      ...driveOptions,
+      q: `'${parentId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
+      fields: "nextPageToken, files(id, name)",
+      pageSize: 100,
+      pageToken,
+    });
+    for (const file of response.data.files ?? []) {
+      if (file.id && file.name) folders.push({ id: file.id, name: file.name });
+    }
+    pageToken = response.data.nextPageToken ?? undefined;
+  } while (pageToken);
+
+  return folders;
+}
+
+function requireFolder(folders: NamedFolder[], label: string, parentLabel: string): NamedFolder {
+  const match = findFolderByLabel(folders, label);
+  if (match) return match;
+  const available = folders.map((folder) => folder.name).join(", ") || "(aucun dossier)";
+  throw new Error(
+    `Dossier Drive introuvable pour « ${label} » dans ${parentLabel}. Dossiers présents : ${available}.`,
+  );
+}
+
+export async function resolveAgencyFolderId(
+  region: Region,
+  agency: Agency,
+): Promise<string> {
+  if (!isPlaceholderFolderId(agency.driveFolderId)) {
+    return agency.driveFolderId;
+  }
+
+  const drive = await getDrive();
+  const rootId = getDriveRootFolderId();
+  const regionFolder = requireFolder(
+    await listChildFolders(drive, rootId),
+    region.name,
+    "le dossier racine",
+  );
+  const agencyFolder = requireFolder(
+    await listChildFolders(drive, regionFolder.id),
+    agency.name,
+    `« ${regionFolder.name} »`,
+  );
+  return agencyFolder.id;
 }
 
 async function createFolder(
@@ -73,7 +82,7 @@ async function createFolder(
   const response = await drive.files.create({
     ...driveOptions,
     requestBody: {
-      name,
+      name: sanitizeFileName(name),
       mimeType: "application/vnd.google-apps.folder",
       parents: [parentId],
     },
@@ -85,43 +94,12 @@ async function createFolder(
   return { id: response.data.id, webViewLink: response.data.webViewLink };
 }
 
-async function findOrCreateFolder(
-  drive: drive_v3.Drive,
-  parentId: string,
-  name: string,
-): Promise<string> {
-  const existing = await findChildFolder(drive, parentId, name);
-  if (existing) return existing;
-  const created = await createFolder(drive, parentId, name);
-  return created.id;
-}
-
-export async function resolveAgencyFolderId(
-  region: Region,
-  agency: Agency,
-): Promise<string> {
-  if (!isPlaceholderFolderId(agency.driveFolderId)) {
-    return agency.driveFolderId;
-  }
-
-  const rootId = process.env.GOOGLE_DRIVE_ROOT_FOLDER_ID;
-  if (!rootId) {
-    throw new Error(
-      `Aucun dossier Drive n'est configuré pour l'agence « ${agency.name} ». Renseignez driveFolderId dans data/agencies.json ou GOOGLE_DRIVE_ROOT_FOLDER_ID.`,
-    );
-  }
-
-  const drive = getDrive();
-  const regionFolderId = await findOrCreateFolder(drive, rootId, sanitizeName(region.name));
-  return findOrCreateFolder(drive, regionFolderId, sanitizeName(agency.name));
-}
-
 export async function createSubmissionFolder(
   parentId: string,
   name: string,
 ): Promise<{ id: string; webViewLink: string }> {
-  const drive = getDrive();
-  const created = await createFolder(drive, parentId, sanitizeName(name));
+  const drive = await getDrive();
+  const created = await createFolder(drive, parentId, name);
   return {
     id: created.id,
     webViewLink: created.webViewLink || `https://drive.google.com/drive/folders/${created.id}`,
@@ -134,11 +112,11 @@ export async function uploadBuffer(options: {
   mimeType: string;
   buffer: Buffer;
 }): Promise<string> {
-  const drive = getDrive();
+  const drive = await getDrive();
   const response = await drive.files.create({
     ...driveOptions,
     requestBody: {
-      name: sanitizeName(options.filename),
+      name: sanitizeFileName(options.filename),
       parents: [options.folderId],
     },
     media: {

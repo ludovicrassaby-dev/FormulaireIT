@@ -9,6 +9,7 @@ import { getCompanyName } from "@/lib/env";
 import { HttpError, jsonError } from "@/lib/http";
 import { buildRecapJson, buildRecapText } from "@/lib/recap";
 import { requireSessionEmail } from "@/lib/session";
+import { appendDeclarationToSheet } from "@/lib/sheets";
 import { toFolderSlug } from "@/lib/slug";
 import { signSubmissionToken } from "@/lib/submission-token";
 
@@ -63,6 +64,15 @@ export async function POST(request: Request) {
       filename: "synthese.json",
       mimeType: "application/json; charset=utf-8",
       buffer: Buffer.from(buildRecapJson(recapContext), "utf8"),
+    });
+
+    await appendDeclarationToSheet({
+      managerName: user.name,
+      managerEmail: user.email,
+      regionName: match.region.name,
+      agencyName: match.agency.name,
+      folderUrl: folder.webViewLink,
+      payload,
     });
 
     return Response.json({

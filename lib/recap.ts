@@ -1,4 +1,4 @@
-import { STATUS_LABELS, TYPE_LABELS } from "@/lib/labels";
+import { TYPE_LABELS } from "@/lib/labels";
 import type { ComputerPayload, SubmitPayload } from "@/lib/declaration-schema";
 
 type RecapContext = {
@@ -26,16 +26,14 @@ function formatComputer(computer: ComputerPayload, index: number): string {
   return [
     `--- Poste ${String(index).padStart(2, "0")} ---`,
     line("Type", TYPE_LABELS[computer.type]),
-    line("Marque / modèle", computer.brandModel),
     line("Nom de l'appareil (Windows)", computer.windowsDeviceName),
     line("N° d'inventaire Koesio", computer.koesioInventoryNumber),
     line("PC SOS Réseau", computer.isSosReseau ? "Oui" : "Non"),
     line("Référence SOS Réseau", computer.sosReseauReference),
     line("N° de série constructeur", computer.serial),
     line("Photo du n° de série jointe", computer.hasSerialPhoto ? "Oui" : "Non"),
-    line("Localisation", computer.location),
-    line("État", STATUS_LABELS[computer.status]),
-    line("Dernière utilisation connue", computer.lastUsed),
+    line("Aspect du matériel (1-5)", String(computer.appearanceScore)),
+    line("Fonctionnement (0-5)", String(computer.functioningScore)),
     line("Commentaire", computer.comment),
     "",
   ].join("\n");
@@ -77,7 +75,7 @@ export function buildRecapJson(context: RecapContext): string {
         name: context.managerName,
         email: context.managerEmail,
       },
-      location: {
+      agency: {
         region: context.regionName,
         agency: context.agencyName,
         regionId: context.payload.regionId,

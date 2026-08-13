@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Monitor } from "lucide-react";
 import { auth, signOut } from "@/auth";
+import { BrandLogo } from "@/components/brand-logo";
 import { getCompanyName } from "@/lib/env";
 
 export async function SiteHeader(props: { variant?: "default" | "solid" }) {
@@ -16,11 +16,9 @@ export async function SiteHeader(props: { variant?: "default" | "solid" }) {
           : "border-transparent bg-bg/80 backdrop-blur"
       }`}
     >
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3">
         <Link href="/" className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-forest text-card">
-            <Monitor className="h-5 w-5" />
-          </span>
+          <BrandLogo />
           <span className="leading-tight">
             <span className="block font-serif text-lg tracking-tight">{company}</span>
             <span className="block text-xs uppercase tracking-[0.18em] text-muted">
@@ -29,38 +27,29 @@ export async function SiteHeader(props: { variant?: "default" | "solid" }) {
           </span>
         </Link>
 
-        <nav className="flex items-center gap-2 text-sm">
-          {session?.user ? (
-            <>
-              <Link
-                href="/formulaire"
-                className="rounded-full px-4 py-2 text-forest-soft hover:bg-bg-deep"
-              >
-                Formulaire
-              </Link>
-              <form
-                action={async () => {
-                  "use server";
-                  await signOut({ redirectTo: "/" });
-                }}
-              >
-                <button
-                  type="submit"
-                  className="rounded-full px-4 py-2 text-muted hover:bg-bg-deep hover:text-ink"
-                >
-                  Déconnexion
-                </button>
-              </form>
-            </>
-          ) : (
+        {session?.user ? (
+          <nav className="flex items-center gap-2 text-sm">
             <Link
-              href="/connexion"
-              className="rounded-full bg-forest px-4 py-2 text-card hover:bg-forest-soft"
+              href="/formulaire"
+              className="rounded-full px-4 py-2 text-forest-soft hover:bg-bg-deep"
             >
-              Accéder au formulaire
+              Formulaire
             </Link>
-          )}
-        </nav>
+            <form
+              action={async () => {
+                "use server";
+                await signOut({ redirectTo: "/" });
+              }}
+            >
+              <button
+                type="submit"
+                className="rounded-full px-4 py-2 text-muted hover:bg-bg-deep hover:text-ink"
+              >
+                Déconnexion
+              </button>
+            </form>
+          </nav>
+        ) : null}
       </div>
     </header>
   );

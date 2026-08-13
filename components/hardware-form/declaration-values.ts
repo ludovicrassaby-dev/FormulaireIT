@@ -1,10 +1,12 @@
 import {
-  COMPUTER_STATUSES,
   COMPUTER_TYPES,
+  UNSET_SCORE,
   type ComputerPayload,
 } from "@/lib/declaration-schema";
 
-export type ComputerDraft = Omit<ComputerPayload, "hasSerialPhoto"> & {
+export type ComputerDraft = Omit<ComputerPayload, "hasSerialPhoto" | "isSosReseau"> & {
+  appearanceScore: number;
+  functioningScore: number;
   serialPhotos: File[];
   files: File[];
 };
@@ -21,15 +23,12 @@ export type DeclarationFormValues = {
 export function createEmptyComputer(): ComputerDraft {
   return {
     type: COMPUTER_TYPES[0],
-    brandModel: "",
     koesioInventoryNumber: "",
-    isSosReseau: false,
     sosReseauReference: "",
     windowsDeviceName: "",
     serial: "",
-    location: "",
-    status: COMPUTER_STATUSES[0],
-    lastUsed: "",
+    appearanceScore: UNSET_SCORE,
+    functioningScore: UNSET_SCORE,
     comment: "",
     serialPhotos: [],
     files: [],
@@ -56,16 +55,14 @@ export function toSubmitPayload(values: DeclarationFormValues) {
       ? []
       : values.computers.map((computer) => ({
           type: computer.type,
-          brandModel: computer.brandModel,
           koesioInventoryNumber: computer.koesioInventoryNumber,
-          isSosReseau: computer.isSosReseau,
-          sosReseauReference: computer.isSosReseau ? computer.sosReseauReference : "",
+          isSosReseau: Boolean(computer.sosReseauReference.trim()),
+          sosReseauReference: computer.sosReseauReference,
           windowsDeviceName: computer.windowsDeviceName,
           serial: computer.serial,
           hasSerialPhoto: computer.serialPhotos.length > 0,
-          location: computer.location,
-          status: computer.status,
-          lastUsed: computer.lastUsed,
+          appearanceScore: computer.appearanceScore,
+          functioningScore: computer.functioningScore,
           comment: computer.comment,
         })),
   };

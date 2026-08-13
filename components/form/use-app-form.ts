@@ -2,6 +2,7 @@ import { createFormHook } from "@tanstack/react-form";
 import { AttachmentsField } from "@/components/form/attachments-field";
 import { CheckboxField } from "@/components/form/checkbox-field";
 import { fieldContext, formContext } from "@/components/form/form-context";
+import { ScoreField } from "@/components/form/score-field";
 import { SelectField } from "@/components/form/select-field";
 import { SubmitButton } from "@/components/form/submit-button";
 import { TextAreaField } from "@/components/form/textarea-field";
@@ -16,6 +17,7 @@ export const { useAppForm, withForm } = createFormHook({
     SelectField,
     CheckboxField,
     AttachmentsField,
+    ScoreField,
   },
   formComponents: {
     SubmitButton,

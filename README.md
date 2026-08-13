@@ -11,7 +11,18 @@ Stack : Next.js (App Router) · TanStack Form · TanStack Query · Zod. L’app 
 1. Le manager ouvre la vitrine et se connecte avec son **compte professionnel** (`@votre-domaine.fr`). Les Gmail personnels sont refusés.
 2. Il choisit la **région**, puis l’**agence** (liste filtrée).
 3. Il déclare les ordinateurs inutilisés (ou confirme qu’il n’y en a pas) et joint des photos.
-4. L’application crée un sous-dossier daté dans le dossier Drive de l’agence, y dépose une synthèse (`synthese.txt` + `synthese.json`) et les pièces jointes.
+4. L’application crée un sous-dossier Drive, y dépose les photos, et **ajoute une ligne par poste dans une Google Sheet**.
+
+### 5. Google Sheet des réponses
+
+1. Créez une Google Sheet vide.
+2. Partagez-la avec l’e-mail du **compte de service**, droit **Éditeur**.
+3. Activez **Google Sheets API** dans Google Cloud.
+4. L’ID est dans l’URL :
+
+`https://docs.google.com/spreadsheets/d/`**`ID_DE_LA_FEUILLE`**`/edit`
+
+Collez cet ID dans `GOOGLE_SHEET_ID`. L’onglet `Reponses` est créé automatiquement.
 
 ## Préparer Google
 
@@ -47,20 +58,11 @@ L’ID d’un dossier se trouve dans l’URL :
 
 ### 4. Régions, agences, dossiers
 
-Éditez `data/agencies.json` :
+Les photos partent dans le dossier racine Drive. L’app **trouve toute seule** le sous-dossier région (`HAUTE-NORMANDIE`, `LA REUNION`…) puis le dossier agence (`SAINT BENOIT`, `LE PORT`…), même si les noms sont en majuscules ou avec/sans tiret.
 
-```json
-{
-  "id": "lyon",
-  "name": "Lyon",
-  "driveFolderId": "1AbCDefGhiJKLmnop"
-}
-```
+Partagez ce dossier racine (et la Google Sheet) avec le compte de service, droit **Éditeur**.
 
-- Si `driveFolderId` est renseigné : les fichiers vont **dans ce dossier**.
-- S’il vaut encore `REMPLACER_PAR_ID_DOSSIER_DRIVE` : l’app crée `Région / Agence` sous `GOOGLE_DRIVE_ROOT_FOLDER_ID`.
-
-Chaque envoi crée un sous-dossier du type `2026-08-13_marie-dupont_a3k9`.
+Chaque envoi crée un sous-dossier du type `2026-08-13_marie-dupont_a3k9` **dans le dossier de l’agence**.
 
 ## Variables d’environnement (Vercel)
 
@@ -79,6 +81,7 @@ Dans Vercel → Project → Settings → Environment Variables :
 | `AUTH_URL` | URL publique, ex. `https://votre-projet.vercel.app` |
 | `GOOGLE_SERVICE_ACCOUNT_JSON` | JSON du compte de service, **une seule ligne** |
 | `GOOGLE_DRIVE_ROOT_FOLDER_ID` | Optionnel, dossier racine de repli |
+| `GOOGLE_SHEET_ID` | ID de la Google Sheet (toutes les réponses y sont ajoutées) |
 
 Pour coller le JSON du compte de service dans Vercel, compactez-le sur une ligne. Les `\n` de la clé privée doivent rester échappés.
 
