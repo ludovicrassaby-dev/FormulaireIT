@@ -23,13 +23,24 @@ export function getPrimaryDomainHint(): string | undefined {
   return getAllowedEmailDomains()[0];
 }
 
-/** Prevent a copied local .env from sending Google OAuth back to localhost on Vercel. */
+function publicHost(value: string): string {
+  return value.replace(/^https?:\/\//, "").replace(/\/$/, "");
+}
+
+/** Canonical site URL for Auth.js (never localhost, never a random *.vercel.app deploy URL). */
 export function applyVercelAuthUrl(): void {
   if (!process.env.VERCEL) return;
-  const host = (process.env.VERCEL_URL || "").replace(/^https?:\/\//, "");
-  if (!host) return;
-  const current = process.env.AUTH_URL || "";
-  if (!current || /localhost|127\.0\.0\.1/i.test(current)) {
-    process.env.AUTH_URL = `https://${host}`;
+
+  const configured = process.env.AUTH_URL || "";
+  if (configured && !/localhost|127\.0\.0\.1/i.test(configured)) {
+    process.env.AUTH_URL = `https://${publicHost(configured)}`;
+    return;
   }
+
+  const production = process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? publicHost(process.env.VERCEL_PROJECT_PRODUCTION_URL)
+    : "";
+  const deployment = process.env.VERCEL_URL ? publicHost(process.env.VERCEL_URL) : "";
+  const host = production || deployment;
+  if (host) process.env.AUTH_URL = `https://${host}`;
 }
