@@ -9,13 +9,36 @@ export async function getDrive(): Promise<drive_v3.Drive> {
   return google.drive({ version: "v3", auth: await getGoogleAuth() });
 }
 
-const driveOptions = {
+const sharedDriveOptions = {
   supportsAllDrives: true,
+} as const;
+
+const listDriveOptions = {
+  ...sharedDriveOptions,
   includeItemsFromAllDrives: true,
+  corpora: "allDrives",
 } as const;
 
 function sanitizeFileName(value: string): string {
   return value.replace(/[\\/:*?"<>|]/g, "-").replace(/\s+/g, " ").trim();
+}
+
+async function assertFolderAccess(
+  drive: drive_v3.Drive,
+  folderId: string,
+  label: string,
+): Promise<void> {
+  try {
+    await drive.files.get({
+      fileId: folderId,
+      fields: "id, name",
+      ...sharedDriveOptions,
+    });
+  } catch {
+    throw new Error(
+      `Votre compte Google n’a pas accès à ${label}. Partagez ce dossier Drive (et la Google Sheet) avec l’adresse du collaborateur, droit Éditeur — ou avec tout le domaine @actualgroup.com.`,
+    );
+  }
 }
 
 async function listChildFolders(
@@ -27,7 +50,7 @@ async function listChildFolders(
 
   do {
     const response = await drive.files.list({
-      ...driveOptions,
+      ...listDriveOptions,
       q: `'${parentId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
       fields: "nextPageToken, files(id, name)",
       pageSize: 100,
@@ -45,9 +68,14 @@ async function listChildFolders(
 function requireFolder(folders: NamedFolder[], label: string, parentLabel: string): NamedFolder {
   const match = findFolderByLabel(folders, label);
   if (match) return match;
-  const available = folders.map((folder) => folder.name).join(", ") || "(aucun dossier)";
+  if (folders.length === 0) {
+    throw new Error(
+      `Aucun sous-dossier visible dans ${parentLabel} (recherche de « ${label} »). Le compte Google utilisé n’a pas le droit de voir ce Drive. Partagez le dossier racine et les dossiers région/agence avec ce collaborateur, droit Éditeur.`,
+    );
+  }
+  const available = folders.map((folder) => folder.name).join(", ");
   throw new Error(
-    `Dossier Drive introuvable pour « ${label} » dans ${parentLabel}. Dossiers présents : ${available}.`,
+    `Dossier Drive introuvable pour « ${label} » dans ${parentLabel}. Dossiers visibles : ${available}.`,
   );
 }
 
@@ -61,6 +89,7 @@ export async function resolveAgencyFolderId(
 
   const drive = await getDrive();
   const rootId = getDriveRootFolderId();
+  await assertFolderAccess(drive, rootId, "le dossier Drive racine de l’inventaire");
   const regionFolder = requireFolder(
     await listChildFolders(drive, rootId),
     region.name,
@@ -80,7 +109,7 @@ async function createFolder(
   name: string,
 ): Promise<{ id: string; webViewLink?: string | null }> {
   const response = await drive.files.create({
-    ...driveOptions,
+    ...sharedDriveOptions,
     requestBody: {
       name: sanitizeFileName(name),
       mimeType: "application/vnd.google-apps.folder",
@@ -114,7 +143,7 @@ export async function uploadBuffer(options: {
 }): Promise<string> {
   const drive = await getDrive();
   const response = await drive.files.create({
-    ...driveOptions,
+    ...sharedDriveOptions,
     requestBody: {
       name: sanitizeFileName(options.filename),
       parents: [options.folderId],
