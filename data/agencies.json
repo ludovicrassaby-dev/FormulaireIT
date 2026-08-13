@@ -1,0 +1,162 @@
+{
+  "regions": [
+    {
+      "id": "siege-direction",
+      "name": "Siège - Direction",
+      "agencies": [
+        { "id": "maxeville", "name": "Maxéville", "driveFolderId": "" }
+      ]
+    },
+    {
+      "id": "siege-fonctions-support",
+      "name": "Siège - Fonctions support",
+      "agencies": [
+        { "id": "maxeville", "name": "Maxéville", "driveFolderId": "" }
+      ]
+    },
+    {
+      "id": "auvergne-loire",
+      "name": "Auvergne-Loire",
+      "agencies": [
+        { "id": "aurillac", "name": "Aurillac", "driveFolderId": "" },
+        { "id": "clermont-ferrand", "name": "Clermont-Ferrand", "driveFolderId": "" },
+        { "id": "cournon-d-auvergne", "name": "Cournon-d'Auvergne", "driveFolderId": "" },
+        { "id": "moulins", "name": "Moulins", "driveFolderId": "" },
+        { "id": "saint-etienne", "name": "Saint-Étienne", "driveFolderId": "" },
+        { "id": "vichy", "name": "Vichy", "driveFolderId": "" }
+      ]
+    },
+    {
+      "id": "bourgogne",
+      "name": "Bourgogne",
+      "agencies": [
+        { "id": "auxerre", "name": "Auxerre", "driveFolderId": "" },
+        { "id": "beaune", "name": "Beaune", "driveFolderId": "" },
+        { "id": "chalon-sur-saone", "name": "Chalon-sur-Saône", "driveFolderId": "" },
+        { "id": "digoin", "name": "Digoin", "driveFolderId": "" },
+        { "id": "dijon", "name": "Dijon", "driveFolderId": "" },
+        { "id": "fragnes-la-loyere", "name": "Fragnes-la-Loyère", "driveFolderId": "" },
+        { "id": "louhans", "name": "Louhans", "driveFolderId": "" },
+        { "id": "macon", "name": "Mâcon", "driveFolderId": "" },
+        { "id": "montbard", "name": "Montbard", "driveFolderId": "" },
+        { "id": "quetigny", "name": "Quetigny", "driveFolderId": "" },
+        { "id": "sens", "name": "Sens", "driveFolderId": "" },
+        { "id": "tournus", "name": "Tournus", "driveFolderId": "" }
+      ]
+    },
+    {
+      "id": "champagne-ardenne",
+      "name": "Champagne-Ardenne",
+      "agencies": [
+        { "id": "chalons-en-champagne", "name": "Châlons-en-Champagne", "driveFolderId": "" },
+        { "id": "chaumont", "name": "Chaumont", "driveFolderId": "" },
+        { "id": "reims", "name": "Reims", "driveFolderId": "" },
+        { "id": "sedan", "name": "Sedan", "driveFolderId": "" },
+        { "id": "troyes", "name": "Troyes", "driveFolderId": "" }
+      ]
+    },
+    {
+      "id": "cvl-est",
+      "name": "CVL Est",
+      "agencies": [
+        { "id": "argenton-sur-creuse", "name": "Argenton-sur-Creuse", "driveFolderId": "" },
+        { "id": "aubigny-sur-nere", "name": "Aubigny-sur-Nère", "driveFolderId": "" },
+        { "id": "bourges", "name": "Bourges", "driveFolderId": "" },
+        { "id": "chateaudun", "name": "Châteaudun", "driveFolderId": "" },
+        { "id": "chateauroux", "name": "Châteauroux", "driveFolderId": "" },
+        { "id": "dreux", "name": "Dreux", "driveFolderId": "" },
+        { "id": "issoudun", "name": "Issoudun", "driveFolderId": "" },
+        { "id": "saint-amand-montrond", "name": "Saint-Amand-Montrond", "driveFolderId": "" },
+        { "id": "saint-jean-de-braye", "name": "Saint-Jean-de-Braye", "driveFolderId": "" },
+        { "id": "saint-jean-de-la-ruelle", "name": "Saint-Jean-de-la-Ruelle", "driveFolderId": "" },
+        { "id": "vierzon", "name": "Vierzon", "driveFolderId": "" }
+      ]
+    },
+    {
+      "id": "franche-comte",
+      "name": "Franche-Comté",
+      "agencies": [
+        { "id": "besancon", "name": "Besançon", "driveFolderId": "" },
+        { "id": "dole", "name": "Dole", "driveFolderId": "" },
+        { "id": "pontarlier", "name": "Pontarlier", "driveFolderId": "" },
+        { "id": "vesoul", "name": "Vesoul", "driveFolderId": "" }
+      ]
+    },
+    {
+      "id": "haute-normandie",
+      "name": "Haute-Normandie",
+      "agencies": [
+        { "id": "alencon", "name": "Alençon", "driveFolderId": "" },
+        { "id": "bernay", "name": "Bernay", "driveFolderId": "" },
+        { "id": "dieppe", "name": "Dieppe", "driveFolderId": "" },
+        { "id": "elbeuf", "name": "Elbeuf", "driveFolderId": "" },
+        { "id": "evreux", "name": "Évreux", "driveFolderId": "" },
+        { "id": "forges-les-eaux", "name": "Forges-les-Eaux", "driveFolderId": "" },
+        { "id": "gisors", "name": "Gisors", "driveFolderId": "" },
+        { "id": "le-havre", "name": "Le Havre", "driveFolderId": "" },
+        { "id": "les-andelys", "name": "Les Andelys", "driveFolderId": "" },
+        { "id": "lillebonne", "name": "Lillebonne", "driveFolderId": "" },
+        { "id": "louviers", "name": "Louviers", "driveFolderId": "" },
+        { "id": "rouen", "name": "Rouen", "driveFolderId": "" },
+        { "id": "verneuil-d-avre-et-d-iton", "name": "Verneuil d'Avre et d'Iton", "driveFolderId": "" },
+        { "id": "yvetot", "name": "Yvetot", "driveFolderId": "" }
+      ]
+    },
+    {
+      "id": "la-reunion",
+      "name": "La Réunion",
+      "agencies": [
+        { "id": "le-port", "name": "Le Port", "driveFolderId": "" },
+        { "id": "le-tampon", "name": "Le Tampon", "driveFolderId": "" },
+        { "id": "saint-andre", "name": "Saint-André", "driveFolderId": "" },
+        { "id": "saint-benoit", "name": "Saint-Benoît", "driveFolderId": "" },
+        { "id": "saint-denis", "name": "Saint-Denis", "driveFolderId": "" },
+        { "id": "saint-joseph", "name": "Saint-Joseph", "driveFolderId": "" },
+        { "id": "saint-leu", "name": "Saint-Leu", "driveFolderId": "" },
+        { "id": "saint-louis", "name": "Saint-Louis", "driveFolderId": "" },
+        { "id": "saint-paul", "name": "Saint-Paul", "driveFolderId": "" },
+        { "id": "saint-pierre", "name": "Saint-Pierre", "driveFolderId": "" },
+        { "id": "sainte-marie", "name": "Sainte-Marie", "driveFolderId": "" }
+      ]
+    },
+    {
+      "id": "lorraine",
+      "name": "Lorraine",
+      "agencies": [
+        { "id": "epinal", "name": "Épinal", "driveFolderId": "" },
+        { "id": "forbach", "name": "Forbach", "driveFolderId": "" },
+        { "id": "ham-sous-varsberg", "name": "Ham-sous-Varsberg", "driveFolderId": "" },
+        { "id": "luneville", "name": "Lunéville", "driveFolderId": "" },
+        { "id": "remiremont", "name": "Remiremont", "driveFolderId": "" },
+        { "id": "saint-die-des-vosges", "name": "Saint-Dié-des-Vosges", "driveFolderId": "" },
+        { "id": "saint-julien-les-metz", "name": "Saint-Julien-lès-Metz", "driveFolderId": "" },
+        { "id": "sarrebourg", "name": "Sarrebourg", "driveFolderId": "" },
+        { "id": "vandoeuvre-les-nancy", "name": "Vandœuvre-lès-Nancy", "driveFolderId": "" }
+      ]
+    },
+    {
+      "id": "mayotte",
+      "name": "Mayotte",
+      "agencies": [
+        { "id": "mamoudzou", "name": "Mamoudzou", "driveFolderId": "" }
+      ]
+    },
+    {
+      "id": "rhone-alpes",
+      "name": "Rhône-Alpes",
+      "agencies": [
+        { "id": "albertville", "name": "Albertville", "driveFolderId": "" },
+        { "id": "annecy", "name": "Annecy", "driveFolderId": "" },
+        { "id": "caluire", "name": "Caluire", "driveFolderId": "" },
+        { "id": "chambery", "name": "Chambéry", "driveFolderId": "" },
+        { "id": "lyon", "name": "Lyon", "driveFolderId": "" },
+        { "id": "romans-sur-isere", "name": "Romans-sur-Isère", "driveFolderId": "" },
+        { "id": "saint-jean-de-maurienne", "name": "Saint-Jean-de-Maurienne", "driveFolderId": "" },
+        { "id": "saint-priest", "name": "Saint-Priest", "driveFolderId": "" },
+        { "id": "tassin-la-demi-lune", "name": "Tassin-la-Demi-Lune", "driveFolderId": "" },
+        { "id": "thonon-les-bains", "name": "Thonon-les-Bains", "driveFolderId": "" },
+        { "id": "villefranche-sur-saone", "name": "Villefranche-sur-Saône", "driveFolderId": "" }
+      ]
+    }
+  ]
+}

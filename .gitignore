@@ -1,5 +1,3 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
 # dependencies
 /node_modules
 /.pnp
@@ -10,19 +8,11 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
-/coverage
-
-# next.js
+# next.js / build
 /.next/
 /out/
-
-# production
 /build
-
-# misc
-.DS_Store
-*.pem
+/coverage
 
 # debug
 npm-debug.log*
@@ -30,12 +20,35 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# secrets, identifiants, clés
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.p8
+credentials.json
+client_secret*.json
+*service-account*.json
+*serviceaccount*.json
+*-credentials.json
+secrets/
+.secrets/
 
-# vercel
+# vercel / local tooling
 .vercel
+.DS_Store
 
-# typescript
+# typescript généré
 *.tsbuildinfo
 next-env.d.ts
+
+# captures locales (les visuels du formulaire sont dans public/guides)
+/proproetesystem.png
+/refkoesio.jpg
+/refproprietes.png
+/refsosreseau.jpg
+/serialnumber.jpg

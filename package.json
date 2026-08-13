@@ -1,6 +1,6 @@
 {
-  "name": "formulaire-temp",
-  "version": "0.1.0",
+  "name": "formulaire-identification-materiel",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,9 +9,15 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@tanstack/react-form": "^1.33.5",
+    "@tanstack/react-query": "^5.101.4",
+    "googleapis": "^161.0.0",
+    "lucide-react": "^0.562.0",
     "next": "16.3.0",
+    "next-auth": "5.0.0-beta.32",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
